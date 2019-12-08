@@ -2,7 +2,7 @@
 
 # 读取数据存入列表
 
-
+# PERSONID,SITEID,XB,CUSTOMERNAME,ONLINETIME,OFFLINETIME,AREAID,BIRTHDAY
 all_people = [
 ("4911d1b9aa77f09fb6","50010710000149","男","王**","20161008115633","20161008172708","511622","19950529"),
 ("016a5cd4d0818fe8cf","50010510000195","男","张**","20161008151632","20161008191536","531521","19850504"),
@@ -14,5 +14,38 @@ all_people = [
 ("d0a4524541ab02a40e","50010810000102","男","李**","20161008220336","20161009012022","600921","19950217")
 ]
 
-# 人口按地区分类
+class People:
 
+    PERSONID = '' # 上网人编号
+    SITEID = ''
+    XB = ''
+    CUSTOMERNAME = ''
+    ONLINETIME = ''
+    OFFLINETIME = ''
+    AREAID = ''
+    BIRTHDAY = ''
+
+    def __init__(self, src_info):
+        self.PERSONID = src_info[0] # 上网人编号
+        self.SITEID = src_info[1] # 
+        self.XB = src_info[2] # 
+        self.CUSTOMERNAME = src_info[3] # 
+        self.ONLINETIME = src_info[4] # 
+        self.OFFLINETIME = src_info[5] # 
+        self.AREAID = src_info[6] # 
+        self.BIRTHDAY = src_info[7] # 
+
+dict_group = {}
+
+# peo = People( (1,2) )
+# peo.AREAID 的前两个是分类
+
+# dict_group['00'] = [People1,People2,People2]
+# dict_group['01'] = [People3,People4]
+
+# 人口按地区分类，数据存入 dict_group 中
+
+
+
+
+# 输出
