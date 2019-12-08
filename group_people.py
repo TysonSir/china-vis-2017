@@ -1,10 +1,22 @@
 # 读取数据存入列表
 # C:\Users\HJY\Desktop\可视化项目\hydata_swjl_3.csv
 import pandas as pd
+import os
 
-data_file = r'C:\Users\HJY\Desktop\可视化项目\hydata_swjl_3.csv'
-csv_data = pd.read_csv(data_file)  # 读取训练数据
-all_people = csv_data.values.tolist()
+def file_paths(file_dir):
+    list_files = []
+    for file in os.listdir(file_dir):
+        file_path = os.path.join(file_dir, file)
+        if not os.path.isdir(file_path):
+            list_files.append(file_path)  # 当前路径下所有非目录子文件
+    return list_files
+
+# print(file_names('../'))
+
+all_people = []
+for data_file in file_paths('../'):
+    csv_data = pd.read_csv(data_file)  # 读取训练数据
+    all_people += csv_data.values.tolist()
 
 # print(csv_data.shape)  # (189, 9)
 # print(csv_data)  # (189, 9)
