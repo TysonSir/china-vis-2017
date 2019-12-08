@@ -7,8 +7,9 @@ import os
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 mpl.rcParams['axes.unicode_minus'] = False
 
-data_dir = r'D:\MyProject\PythonPro\china-vis-2017\data'
+data_dir = r'.\data2'
 
+# 返回file_dir文件夹中所有文件路径列表
 def file_paths(file_dir):
     list_files = []
     for file in os.listdir(file_dir):
@@ -19,11 +20,11 @@ def file_paths(file_dir):
 
 print(file_paths(data_dir))
 
+# 从文件中的读取数据存到 all_people 中
 all_people = []
 for data_file in file_paths(data_dir):
     csv_data = pd.read_csv(data_file)  # 读取训练数据
     all_people += csv_data.values.tolist()
-
 
 # PERSONID,SITEID,XB,CUSTOMERNAME,ONLINETIME,OFFLINETIME,AREAID,BIRTHDAY
 # all_people = [
@@ -59,45 +60,26 @@ class People:
         self.BIRTHDAY = str(src_info[7]) # 
 
 dict_group = {}
-
-# peo = People( (1,2) )
-i = 0
-while i < len(all_people):
-    peo = People(all_people[i])
+# 人口按地区分类，数据存入 dict_group 中
+for i in all_people:
+    peo = People(i)
     # peo.AREAID 的前两个是分类
     peo1 = peo.AREAID[0:2]
     # dict_group['00'] = [People1,People2,People2]
-    if peo1 in dict_group.keys():
-        dict_group[peo1] += [all_people[i]]
-    else:
+    if peo1 not in dict_group.keys():
         dict_group[peo1] = []
-        dict_group[peo1] += [all_people[i]]
-    i += 1
-# dict_group['01'] = [People3,People4]
+    dict_group[peo1] += [i]
 
-# 人口按地区分类，数据存入 dict_group 中
-
-# a = np.array([22,87,5,43,56,73,55,54,11,20,51,5,79,31,27]) 
-# plt.hist(a, bins =  [51,53,56,60]) 
-# plt.title("histogram") 
-# plt.show()
-j = 0
-
+# 画图
 x =  dict_group.keys()
 y = []
-# while j <= len(dict_group.keys()) - 1:
-
-#     y +=  [len(dict_group[j])] 
-#     j += 1
 for j in dict_group.values():
     y.append(len(j))
-plt.bar(x, y, align =  'center') 
 
+plt.bar(x, y, align =  'center') 
 plt.title('各省流动人口数量') 
 plt.ylabel('在重庆人口数量')
 plt.xlabel('省份编号')
 # plt.xticks(x, ('四川','云南','贵州','陕西')) 
 plt.show()
 # 51四川，53云南，52贵州，61陕西
-
-# 输出
