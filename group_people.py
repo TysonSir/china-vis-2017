@@ -7,8 +7,8 @@ import os
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 mpl.rcParams['axes.unicode_minus'] = False
 
-# data_dir = r'..\data2'
-data_dir = r'C:\Users\HJY\Desktop\可视化项目\data2'
+data_dir = r'.\data_test'
+# data_dir = r'C:\Users\HJY\Desktop\可视化项目\data2'
 
 # 返回file_dir文件夹中所有文件路径列表
 def file_paths(file_dir):
@@ -60,16 +60,16 @@ class People:
         self.AREAID = str(src_info[6]) # 
         self.BIRTHDAY = str(src_info[7]) # 
 
-dict_group = {}
-# 人口按地区分类，数据存入 dict_group 中
-for i in all_people:
-    peo = People(i)
-    # peo.AREAID 的前两个是分类
-    id = peo.AREAID[0:2]
-    # dict_group['00'] = [People1,People2,People2]
-    if id not in dict_group.keys():
-        dict_group[id] = []
-    dict_group[id] += [i]
+# dict_group = {}
+# # 人口按地区分类，数据存入 dict_group 中
+# for i in all_people:
+#     peo = People(i)
+#     # peo.AREAID 的前两个是分类
+#     id = peo.AREAID[0:2]
+#     # dict_group['00'] = [People1,People2,People2]
+#     if id not in dict_group.keys():
+#         dict_group[id] = []
+#     dict_group[id] += [i]
 
 # # 画图
 # x =  dict_group.keys()
@@ -88,28 +88,25 @@ for i in all_people:
 group = {}
 for i in all_people:
     peo = People(i)
-    age = 2019 - int(peo.BIRTHDAY[0:4])
+    try:
+        age = 2019 - int(peo.BIRTHDAY[0:4])
+    except ValueError as err:
+        print('数据 年份出错：peo.BIRTHDAY = %s', peo.BIRTHDAY)
+        continue
     if age not in group.keys():
         group[age] = []
     group[age] += [i]
 
 # 画图
-x = range(0,100)
+x = group.keys()
 y = []
 for j in group.values():
     y.append(len(j))
 
-fig = plt.figure(figsize=(20,8), dpi=80)
-
-_x = x
-_xtick_labels = ["{}岁".format(i) for i in _x]
-# plt.xticks(x, _xtick_labels, fontproperties = my_font)
-
-# plt.title("不同年龄段外地人口数量",fontproperties = my_font)
-
-# 绘制网格
-plt.grid(alpha = 0.1)
-
-plt.plot(x, y)
+plt.title("不同年龄段外地人口百分比")
+plt.pie(x = y, # 绘图数据
+        labels=x, # 添加标签
+        autopct='%.1f%%' # 设置百分比的格式，这里保留一位小数
+       )
 plt.show()
 
