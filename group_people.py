@@ -7,7 +7,8 @@ import os
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 mpl.rcParams['axes.unicode_minus'] = False
 
-data_dir = r'.\data2'
+# data_dir = r'..\data2'
+data_dir = r'C:\Users\HJY\Desktop\可视化项目\data2'
 
 # 返回file_dir文件夹中所有文件路径列表
 def file_paths(file_dir):
@@ -64,22 +65,51 @@ dict_group = {}
 for i in all_people:
     peo = People(i)
     # peo.AREAID 的前两个是分类
-    peo1 = peo.AREAID[0:2]
+    id = peo.AREAID[0:2]
     # dict_group['00'] = [People1,People2,People2]
-    if peo1 not in dict_group.keys():
-        dict_group[peo1] = []
-    dict_group[peo1] += [i]
+    if id not in dict_group.keys():
+        dict_group[id] = []
+    dict_group[id] += [i]
+
+# # 画图
+# x =  dict_group.keys()
+# y = []
+# for j in dict_group.values():
+#     y.append(len(j))
+
+# plt.bar(x, y, align =  'center') 
+# plt.title('各省流动人口数量') 
+# plt.ylabel('在重庆人口数量')
+# plt.xlabel('省份编号')
+# # plt.xticks(x, ('四川','云南','贵州','陕西')) 
+# plt.show()
+# # 51四川，53云南，52贵州，61陕西
+
+group = {}
+for i in all_people:
+    peo = People(i)
+    age = 2019 - int(peo.BIRTHDAY[0:4])
+    if age not in group.keys():
+        group[age] = []
+    group[age] += [i]
 
 # 画图
-x =  dict_group.keys()
+x = range(0,100)
 y = []
-for j in dict_group.values():
+for j in group.values():
     y.append(len(j))
 
-plt.bar(x, y, align =  'center') 
-plt.title('各省流动人口数量') 
-plt.ylabel('在重庆人口数量')
-plt.xlabel('省份编号')
-# plt.xticks(x, ('四川','云南','贵州','陕西')) 
+fig = plt.figure(figsize=(20,8), dpi=80)
+
+_x = x
+_xtick_labels = ["{}岁".format(i) for i in _x]
+# plt.xticks(x, _xtick_labels, fontproperties = my_font)
+
+# plt.title("不同年龄段外地人口数量",fontproperties = my_font)
+
+# 绘制网格
+plt.grid(alpha = 0.1)
+
+plt.plot(x, y)
 plt.show()
-# 51四川，53云南，52贵州，61陕西
+
