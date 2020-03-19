@@ -1,0 +1,3 @@
+如果一个算法的时间复杂度可表示为：T(n)=T([n/2])+1，请问它的复杂度是多少？
+
+https://www.zybang.com/question/b308765df921a0d0fefbb07d48eaa612.html
