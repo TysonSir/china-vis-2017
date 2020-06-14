@@ -1,8 +1,9 @@
-import os, pprint, shutil
+import os, shutil
 import cv2 as cv
-import numpy as np
+from pylab import *
 from matplotlib import pyplot as plt
-
+mpl.rcParams['font.sans-serif'] = ['SimHei']
+mpl.rcParams['axes.unicode_minus'] = False
 
 # 保存图像
 def ImageSave(image, file = 'default.jpg'):
@@ -106,6 +107,11 @@ def ColCut(image, col_dir):
     row_num, col_num = image.shape
     # 纵向切分之 求切分范围
     list_col_num = ColBlackPoint(image) # 求所有纵向的 黑色像素点数量
+    plt.bar(range(len(list_col_num)), list_col_num)
+    plt.title('像素点横坐标与该列黑像素点个数关系图')
+    plt.ylabel('黑像素点个数')
+    plt.xlabel('像素点横坐标')
+    plt.show()
     list_low_area = GetLowPointArea(list_col_num) # 求低谷范围
     list_char_area = GetCharArea(list_low_area, len(list_col_num)) # 求汉字范围
 
@@ -135,8 +141,13 @@ def main():
     src = cv.imread('./00000142.jpg')
     ImageShow(src, 'src')
 
+    # 降噪
+    noise = cv.GaussianBlur(src, (7, 7), 0)
+    ImageShow(noise, 'GaussianBlur', './output/noise.jpg')
+
     # 二值化处理
-    bry = Binarization(src)
+    bry = Binarization(noise)
+    ImageShow(bry, 'bry','./output/bry.jpg')
 
     # 纵向切分
     ColCut(bry, col_dir)
@@ -155,6 +166,7 @@ def main():
         # 图片上画框
         AddRectangle(src, x=x1, y=y1, w=x2 - x1, h=y2 - y1)
     ImageShow(src, 'src', savepath='./output/out.jpg')
+
 
     return SystemWait()
 
