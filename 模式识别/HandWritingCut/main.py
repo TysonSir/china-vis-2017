@@ -92,11 +92,40 @@ def init():
     col_dir = './output/col'
     if not os.path.exists(col_dir):
         os.makedirs(col_dir)
-    return col_dir
+
+    char_dir = './output/char'
+    if not os.path.exists(char_dir):
+        os.makedirs(char_dir)
+    return col_dir, char_dir
+
+def ColCut(image, col_dir):
+    row_num, col_num = image.shape
+    # 纵向切分之 求切分范围
+    list_col_num = ColBlackPoint(image) # 求所有纵向的 黑色像素点数量
+    list_low_area = GetLowPointArea(list_col_num) # 求低谷范围
+    list_char_area = GetCharArea(list_low_area, len(list_col_num)) # 求汉字范围
+
+    # 纵向切分之 保存图片
+    for x1, x2 in list_char_area:
+        cut_bry = CutRectangle(image, x=x1, y=0, w=x2-x1, h=row_num)
+        ImageShow(cut_bry, str(x1), savepath=os.path.join(col_dir, '%d_%d.jpg' % (x1, x2)))
+
+def RowCut(image, char_dir):
+    bry = Binarization(image)
+    row_num, col_num = bry.shape
+    # 横向切分之 求切分范围
+    list_row_num = RowBlackPoint(bry)  # 求所有横向的 黑色像素点数量
+    list_low_area = GetLowPointArea(list_row_num)  # 求低谷范围
+    list_char_area = GetCharArea(list_low_area, len(list_row_num))  # 求汉字范围
+
+    # 横向切分之 保存图片
+    for y1, y2 in list_char_area:
+        cut_bry = CutRectangle(bry, x=0, y=y1, w=col_num, h=y2 - y1)
+        ImageShow(cut_bry, str(y1), savepath=os.path.join(char_dir, '0_145_%d_%d.jpg' % (y1, y2)))
 
 def main():
     # 初始化
-    col_dir = init()
+    col_dir, char_dir = init()
 
     # 读取原图
     src = cv.imread('./00000142.jpg')
@@ -114,17 +143,13 @@ def main():
     # AddRectangle(bry, x=10, y=10, w=100, h=100)
     # ImageShow(bry, 'Binarization')
 
-    # 纵向切分之 求切分范围
-    list_col_num = ColBlackPoint(bry) # 求所有纵向的 黑色像素点数量
-    list_low_area = GetLowPointArea(list_col_num) # 求低谷范围
-    list_char_area = GetCharArea(list_low_area, len(list_col_num)) # 求汉字范围
-
-    # 纵向切分之 保存图片
-    for x1, x2 in list_char_area:
-        cut_bry = CutRectangle(bry, x=x1, y=0, w=x2-x1, h=row_num)
-        ImageShow(cut_bry, str(x1), savepath=os.path.join(col_dir, '%d_%d.jpg' % (x1, x2)))
-
+    # 纵向切分
+    ColCut(bry, col_dir)
+    # 横向切分
+    image = cv.imread("./output/col/0_145.jpg")
+    RowCut(image, char_dir)
     return SystemWait()
+
     plt.bar(range(len(list_col_num)), list_col_num)
 
     list_row_num = RowBlackPoint(bry)
