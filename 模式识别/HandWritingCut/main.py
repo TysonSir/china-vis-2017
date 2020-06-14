@@ -40,7 +40,7 @@ def RowBlackPoint(img):
     return list
 
 # 图片加框
-def AddRectangle(img, x, y, w, h, rgb=(0, 0, 0), pix=2):
+def AddRectangle(img, x, y, w, h, rgb=(0, 0, 255), pix=3):
     cv.rectangle(img, (x, y), (x + w, y + h), rgb, pix)
 
 # 图片裁剪
@@ -133,15 +133,6 @@ def main():
 
     # 二值化处理
     bry = Binarization(src)
-    row_num, col_num = bry.shape
-
-    # # 切分区域，保存图片
-    # cut_bry = CutRectangle(bry, x=10, y=10, w=100, h=100)
-    # ImageShow(cut_bry, 'cut_bry', savepath='cut_bry.jpg')
-    #
-    # # 图片上画框
-    # AddRectangle(bry, x=10, y=10, w=100, h=100)
-    # ImageShow(bry, 'Binarization')
 
     # 纵向切分
     ColCut(bry, col_dir)
@@ -149,13 +140,19 @@ def main():
     for filename in os.listdir(col_dir):
         image = cv.imread(os.path.join(col_dir, filename))
         RowCut(image, char_dir, prefix=filename.split('.')[0])
+
+    # 原图中框出汉字
+    for filename in os.listdir(char_dir):
+        list_num = filename.split('.')[0].split('_')
+        x1 = int(list_num[0])
+        x2 = int(list_num[1])
+        y1 = int(list_num[2])
+        y2 = int(list_num[3])
+        # 图片上画框
+        AddRectangle(src, x=x1, y=y1, w=x2 - x1, h=y2 - y1)
+    ImageShow(src, 'src', savepath='./output/out.jpg')
+
     return SystemWait()
-
-    plt.bar(range(len(list_col_num)), list_col_num)
-
-    list_row_num = RowBlackPoint(bry)
-    plt.bar(range(len(list_row_num)), list_row_num)
-    plt.show()
 
 if __name__ == '__main__':
     main()
