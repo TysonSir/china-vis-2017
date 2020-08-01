@@ -32,7 +32,7 @@ class ImageMng:
         gray = cv.cvtColor(self.opt_image, cv.COLOR_RGB2GRAY)  # 把输入图像灰度化
         # 直接阈值化是对输入的单通道矩阵逐像素进行阈值分割。
         ret, binary = cv.threshold(gray, 0, 255, cv.THRESH_BINARY | cv.THRESH_TRIANGLE)
-        print("threshold value %s" % ret)  # 阈值
+        # print("threshold value %s" % ret)  # 阈值
         self.opt_image = binary
         return binary
 
@@ -84,9 +84,18 @@ def main():
     # return SystemWait()
 
     # 绘制整个文件夹
-    list_file = os.listdir('./fn00')
+    input_dir = './fn00'
+    output_dir = './output'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    list_file = os.listdir(input_dir)
+    i = 0
+    all = len(list_file)
     for file in list_file:
-        GR_DrawBackLine('./fn00/%s' % file, './output/%s' % file)
+        i += 1
+        print('[%d/%d] %s' % (i, all, file))
+        GR_DrawBackLine(os.path.join(input_dir, file), os.path.join(output_dir, file))
 
     return SystemWait()
 
