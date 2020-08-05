@@ -1,43 +1,14 @@
 import os, shutil
 import cv2 as cv
+from image_mng import ImageMng
 
-class ImageMng:
+class GaitImage(ImageMng):
     def __init__(self, image_path):
         # 读取原图
-        self.src_image = cv.imread(image_path)
-        self.opt_image = cv.imread(image_path)
-
-    # 保存图像
-    def ImageSave(self, img, file = 'default.jpg'):
-        cv.imwrite(file, img)
-
-    # 显示图像
-    def ImageShow(self, title, savepath=''):
-        if title != '':
-            cv.namedWindow(title, cv.WINDOW_NORMAL)  # 设置为WINDOW_NORMAL可以任意缩放
-            cv.imshow(title, self.opt_image)
-        if savepath != '':
-            self.ImageSave(self.opt_image, savepath)
-
-    # 显示原图
-    def ImageShowSrc(self, title, savepath=''):
-        if title != '':
-            cv.namedWindow(title, cv.WINDOW_NORMAL) #设置为WINDOW_NORMAL可以任意缩放
-            cv.imshow(title, self.src_image)
-        if savepath != '':
-            self.ImageSave(self.src_image, savepath)
-
-    # 图像二值化处理
-    def Binarization(self):
-        gray = cv.cvtColor(self.opt_image, cv.COLOR_RGB2GRAY)  # 把输入图像灰度化
-        # 直接阈值化是对输入的单通道矩阵逐像素进行阈值分割。
-        ret, binary = cv.threshold(gray, 0, 255, cv.THRESH_BINARY | cv.THRESH_TRIANGLE)
-        # print("threshold value %s" % ret)  # 阈值
-        self.opt_image = binary
-        return binary
+        super(GaitImage, self).__init__(image_path)
 
     # 找到每行的第一个白点
-    def GetFirstWhitePoint(self):
+    def GetFirstWhitePointOnline(self):
         list_first_white = []
         row, col = self.opt_image.shape
         for i in range(row):
@@ -47,16 +18,84 @@ class ImageMng:
                     break
         return list_first_white
 
-    # 图片中画折线
-    def DrawLineSrc(self, list_point):
-        for i in range(1, len(list_point)):
-            # 起点和终点的坐标
-            ptStart = list_point[i - 1]
-            ptEnd = list_point[i]
-            point_color = (0, 0, 255)  # BGR
-            thickness = 1 # 线条宽度
-            lineType = 4
-            cv.line(self.src_image, ptStart, ptEnd, point_color, thickness, lineType)
+    # 找质心
+    def GetCenter(self):
+        x = 0
+        y = 0
+        row, col = self.opt_image.shape
+        # 获取所有白点数量
+        cnt_white = 0
+        for i in range(row):
+            for j in range(col):
+                if self.opt_image[i, j] == 255:
+                    cnt_white += 1
+
+        target_white = cnt_white // 2
+
+        # 找到竖向中心坐标
+        y = 0
+        tmp_white = 0
+        for i in range(row):
+            tmp_white += (self.opt_image[i, :] == 255).sum()
+            if tmp_white >= target_white:
+                y = i
+                break
+
+        # 找到横向中心坐标
+        x = 0
+        tmp_white = 0
+        for j in range(col):
+            tmp_white += (self.opt_image[:, j] == 255).sum()
+            if tmp_white >= target_white:
+                x = j
+                break
+
+        return x, y
+
+    # 算步长
+    def GetWidthMax(self):
+        row, col = self.opt_image.shape
+        # 找横向最宽起始点
+        max_width = 0 # 最宽长
+        max_start = 0  # 最宽起点
+        y = 0 # 坐标
+        for i in range(row):
+            # 该行第一个白色
+            start = 0
+            for j in range(col):
+                if self.opt_image[i, j] == 255:
+                    start = j
+                    break
+
+            # 该行最后一个白色
+            end = 0
+            for j in reversed(range(col)):
+                if self.opt_image[i, j] == 255:
+                    end = j
+                    break
+
+            tmp_width = end - start
+            if tmp_width > max_width:
+                max_start = start
+                max_width = tmp_width
+                y = i
+
+        return max_start, max_width, y
+
+    # 获取人高度范围
+    def GetHightRange(self):
+        top = 0
+        row, col = self.opt_image.shape
+        for i in range(row):
+            if top == 0 and (self.opt_image[i, :] == 255).sum() > 0:
+                top = i
+
+        bottom = 0
+        for i in reversed(range(row)):
+            if bottom == 0 and (self.opt_image[i, :] == 255).sum() > 0:
+                bottom = i
+
+        return top, bottom
 
 
 def SystemWait():
@@ -64,9 +103,9 @@ def SystemWait():
     cv.destroyAllWindows()
     return True
 
-def GR_DrawBackLine(src_img_path, dst_img_path):
+def GR_DrawCalResult(src_img_path, dst_img_path):
     # 读取原图
-    img = ImageMng(src_img_path)
+    img = GaitImage(src_img_path)
     # img.ImageShow('src')
 
     # 二值化处理
@@ -74,9 +113,19 @@ def GR_DrawBackLine(src_img_path, dst_img_path):
     # img.ImageShow('bry')
 
     # 画背部曲线
-    list_first_white = img.GetFirstWhitePoint()
+    list_first_white = img.GetFirstWhitePointOnline()
     img.DrawLineSrc(list_first_white)
-    img.ImageShowSrc('', dst_img_path) # 保存到文件夹，不显示
+
+    # 画质心
+    img.DrawCenterPointSrc(img.GetCenter())
+
+    # 画步长
+    max_start, max_width, y = img.GetWidthMax()
+    top, bottom = img.GetHightRange()
+    img.DrawLineSrc([(max_start, bottom + 5), (max_start + max_width, bottom + 5)], color=(0, 255, 0))
+
+    # 保存到文件夹，不显示
+    img.ImageShowSrc('', dst_img_path)
 
 def main():
     # GR_DrawBackLine('./057.png', './057_out.png')
@@ -95,7 +144,7 @@ def main():
     for file in list_file:
         i += 1
         print('[%d/%d] %s' % (i, all, file))
-        GR_DrawBackLine(os.path.join(input_dir, file), os.path.join(output_dir, file))
+        GR_DrawCalResult(os.path.join(input_dir, file), os.path.join(output_dir, file))
 
     return SystemWait()
 
