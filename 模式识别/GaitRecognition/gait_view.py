@@ -1,6 +1,20 @@
-import os, shutil
+import os, shutil, math
 import cv2 as cv
+import matplotlib.pyplot as plt
 from image_mng import ImageMng
+
+class GaitMath:
+    def GetTwoPointDistance(self, point1=(0, 0), point2=(0, 0)):
+        x = point1[0] - point2[0]
+        y = point1[1] - point2[1]
+        #用math.sqrt（）求平方根
+        return math.sqrt((x**2)+(y**2))
+
+    def GetDistanceVector(self, point1=(0, 0), list_point=[(0, 0)]):
+        list_distance = []
+        for point2 in list_point:
+            list_distance.append(self.GetTwoPointDistance(point1, point2))
+        return list_distance, len(list_distance)
 
 class GaitImage(ImageMng):
     def __init__(self, image_path):
@@ -104,6 +118,8 @@ def SystemWait():
     return True
 
 def GR_DrawCalResult(src_img_path, dst_img_path):
+    gm = GaitMath()
+
     # 读取原图
     img = GaitImage(src_img_path)
     # img.ImageShow('src')
@@ -117,7 +133,13 @@ def GR_DrawCalResult(src_img_path, dst_img_path):
     img.DrawLineSrc(list_first_white)
 
     # 画质心
-    img.DrawCenterPointSrc(img.GetCenter())
+    point_center = img.GetCenter()
+    img.DrawCenterPointSrc(point_center)
+
+    # 背部曲线到质心距离向量
+    list_distance, count = gm.GetDistanceVector(point_center, list_first_white)
+    plt.scatter(range(count), list_distance)
+    plt.show()
 
     # 画步长
     max_start, max_width, y = img.GetWidthMax()
@@ -128,9 +150,8 @@ def GR_DrawCalResult(src_img_path, dst_img_path):
     img.ImageShowSrc('', dst_img_path)
 
 def main():
-    # GR_DrawBackLine('./057.png', './057_out.png')
-    # GR_DrawBackLine('./fn00/058.png', './058_out.png')
-    # return SystemWait()
+    GR_DrawCalResult('./fn00/078.png', './078_out.png')
+    return SystemWait()
 
     # 绘制整个文件夹
     input_dir = './fn00'
