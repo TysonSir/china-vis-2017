@@ -150,7 +150,7 @@ def GR_DrawCalResult(src_img_path, dst_img_path):
     img.ImageShowSrc('', dst_img_path)
 
 def main():
-    GR_DrawCalResult('./fn00/078.png', './078_out.png')
+    GR_DrawCalResult('./fn00/057.png', './057_out.png')
     return SystemWait()
 
     # 绘制整个文件夹
