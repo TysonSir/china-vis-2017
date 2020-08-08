@@ -59,16 +59,20 @@ class MainLayout(QMainWindow):
     def getVideoCtrl(self):
         pass
 
-    def setLabelFrame(self, target_label):
-        # 设置边框样式 可选样式有Box Panel等
-        target_label.setFrameShape(QtWidgets.QFrame.Box)
-        # 设置阴影 只有加了这步才能设置边框颜色
-        # 可选样式有Raised、Sunken、Plain（这个无法设置颜色）等
-        target_label.setFrameShadow(QtWidgets.QFrame.Raised)
-        # 设置线条宽度
-        target_label.setLineWidth(2)
-        # 设置背景颜色，包括边框颜色
-        target_label.setStyleSheet('background-color: rgb(255, 0, 0)')
+    def setLabelFrame(self, target_label, isOpen=True):
+        if isOpen:
+            # 设置边框样式 可选样式有Box Panel等
+            target_label.setFrameShape(QtWidgets.QFrame.Box)
+            # 设置阴影 只有加了这步才能设置边框颜色
+            # 可选样式有Raised、Sunken、Plain（这个无法设置颜色）等
+            target_label.setFrameShadow(QtWidgets.QFrame.Raised)
+            # 设置线条宽度
+            target_label.setLineWidth(2)
+            # 设置背景颜色，包括边框颜色
+            target_label.setStyleSheet('background-color: rgb(255, 0, 0)')
+        else:
+            # 设置线条宽度
+            target_label.setLineWidth(0)
 
     def createSplitLine(self):
         split_label = QLabel()
@@ -94,7 +98,6 @@ class MainLayout(QMainWindow):
             first_img = self.videos_data[pos].list_image[0]
             self.videos_data[pos].ctrl_label = QLabel() # 创建label对象
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(first_img))
-            self.setLabelFrame(self.videos_data[pos].ctrl_label) # 图片label设置边框
 
             # 获取水平居中标题布局
             note_label = QLabel(self.videos_data[pos].note)
@@ -110,9 +113,19 @@ class MainLayout(QMainWindow):
 
         # 右边操作面板
         self.panel = QVBoxLayout()
+
         self.people = QLabel(self)
         self.people.setText("测试员")
+
+        self.input_edit = QLineEdit('45_2')
+        self.formLayout = QFormLayout()
+        self.formLayout.addRow('高亮视频', self.input_edit)
+
+        self.search_button = QPushButton('查找')
+
         self.panel.addWidget(self.people)
+        self.panel.addLayout(self.formLayout)
+        self.panel.addWidget(self.search_button)
 
         # 应用布局
         hbox = QHBoxLayout()
@@ -126,6 +139,7 @@ class MainLayout(QMainWindow):
     def connSlot(self):
         # 刷新页面
         # self.actFlash.triggered.connect(self.actFlashOnClick)
+        self.search_button.clicked.connect(self.btnSearchPeopleOnClick)
         pass
 
     def startTimer(self):
@@ -147,3 +161,12 @@ class MainLayout(QMainWindow):
     def actFlashOnClick(self):
         print('actFlashOnClick')
         # self.browser.load(QUrl.fromLocalFile(self.url))
+
+    def btnSearchPeopleOnClick(self):
+        print('btnSearchPeopleOnClick')
+        for pos, video in self.videos_data.items():
+            if video.note == self.input_edit.text():
+                self.setLabelFrame(video.ctrl_label, True) # 视频label设置边框
+            else:
+                # self.setLabelFrame(video.ctrl_label, False) # 视频label消除边框
+                pass
