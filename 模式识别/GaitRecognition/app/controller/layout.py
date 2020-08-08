@@ -114,8 +114,14 @@ class MainLayout(QMainWindow):
         # 右边操作面板
         self.panel = QVBoxLayout()
 
+        self.title_label = QLabel("查找人物")
+        self.title_label.resize(300, 30)
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("color:rgb(10,10,10,255);font-size:25px;font-weight:bold;font-family:Roman times;")
+
         self.people = QLabel(self)
-        self.people.setText("测试员")
+        # self.people.setText("测试员")
+        self.people.setPixmap(QPixmap('./data/fyc/45_2/fyc-45_2-026.png'))
 
         self.input_edit = QLineEdit('45_2')
         self.formLayout = QFormLayout()
@@ -123,6 +129,7 @@ class MainLayout(QMainWindow):
 
         self.search_button = QPushButton('查找')
 
+        self.panel.addWidget(self.title_label)
         self.panel.addWidget(self.people)
         self.panel.addLayout(self.formLayout)
         self.panel.addWidget(self.search_button)
