@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPixmap
 import os, json
 
 from controller import ctrl_oper
+from model import match_algo
 
 class VideoCtrl:
     ctrl_label = None # 视频label控件
@@ -14,6 +15,8 @@ class VideoCtrl:
 
 class MainLayout(QMainWindow):
     coper = ctrl_oper.CtrlOper()
+    malgo = match_algo.MatchAlgo()
+    startSearch = False
 
     def __init__(self):
         super(MainLayout, self).__init__()
@@ -139,12 +142,22 @@ class MainLayout(QMainWindow):
         self.timer.timeout.connect(self.showNextImage)
         self.timer.start(35) # 开启定时器40毫秒循环
 
+    def stopTimer(self):
+        self.timer.stop()
+
     # 定时刷新视频
     def showNextImage(self):
         # 控制每个视频，播放下一张图片
         for pos in self.positions:
             count = self.videos_data[pos].now_count
             list_img = self.videos_data[pos].list_image
+
+            # 调用匹配算法
+            if self.startSearch and self.malgo.isImageSame(list_img[count], self.filePathEdit.text()):
+                self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
+                self.stopTimer()
+
+            # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count]))
             self.videos_data[pos].now_count += 1
             if self.videos_data[pos].now_count == len(list_img):
@@ -157,12 +170,8 @@ class MainLayout(QMainWindow):
     # 查找视频
     def btnSearchPeopleOnClick(self):
         print('btnSearchPeopleOnClick')
-        for pos, video in self.videos_data.items():
-            if video.note == self.input_edit.text():
-                self.coper.setLabelFrame(video.ctrl_label, True) # 视频label设置边框
-            else:
-                # self.setLabelFrame(video.ctrl_label, False) # 视频label消除边框
-                pass
+        self.startSearch = True
+        self.startTimer()
 
     # 选择图片
     def btnSelectOnClick(self):
