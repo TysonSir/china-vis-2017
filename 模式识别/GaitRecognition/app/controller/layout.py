@@ -1,11 +1,9 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5 import QtWidgets
-from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import QPixmap
 import os, json
 
-# from model import dataservice
+from controller import ctrl_oper
 
 class VideoCtrl:
     ctrl_label = None # 视频label控件
@@ -15,6 +13,7 @@ class VideoCtrl:
     list_image = []
 
 class MainLayout(QMainWindow):
+    coper = ctrl_oper.CtrlOper()
 
     def __init__(self):
         super(MainLayout, self).__init__()
@@ -56,41 +55,10 @@ class MainLayout(QMainWindow):
         tool.addAction(self.actFlash)
         tool.setToolButtonStyle(Qt.ToolButtonTextOnly)
 
-    def getVideoCtrl(self):
-        pass
-
-    def setLabelFrame(self, target_label, isOpen=True):
-        if isOpen:
-            # 设置边框样式 可选样式有Box Panel等
-            target_label.setFrameShape(QtWidgets.QFrame.Box)
-            # 设置阴影 只有加了这步才能设置边框颜色
-            # 可选样式有Raised、Sunken、Plain（这个无法设置颜色）等
-            target_label.setFrameShadow(QtWidgets.QFrame.Raised)
-            # 设置线条宽度
-            target_label.setLineWidth(2)
-            # 设置背景颜色，包括边框颜色
-            target_label.setStyleSheet('background-color: rgb(255, 0, 0)')
-        else:
-            # 设置线条宽度
-            target_label.setLineWidth(0)
-
-    def createSplitLine(self):
-        split_label = QLabel()
-        split_label.setFrameShape(QtWidgets.QFrame.Box)
-        split_label.setMaximumHeight(2)
-        return split_label
-
-    def getCenterHBox(self, ctrl):
-        note_hbox = QHBoxLayout()
-        note_hbox.addStretch(1)
-        note_hbox.addWidget(ctrl)
-        note_hbox.addStretch(1)
-        return note_hbox
-
     def initUI(self):
         self.initMenu()
 
-        # 左边视频区-初始化数据
+        """左边视频区-初始化数据"""
         self.grid_video = QGridLayout()
         self.positions = [(i, j) for i in range(3) for j in range(3)]
         for pos in self.positions:
@@ -101,32 +69,35 @@ class MainLayout(QMainWindow):
 
             # 获取水平居中标题布局
             note_label = QLabel(self.videos_data[pos].note)
-            note_hbox = self.getCenterHBox(note_label)
+            note_hbox = self.coper.getCenterHBox(note_label)
 
             # 视频控件展示到网格
             video_box = QVBoxLayout()
             video_box.addWidget(self.videos_data[pos].ctrl_label) # 图片
             video_box.addLayout(note_hbox) # 文字
-            video_box.addWidget(self.createSplitLine()) # 分割线
+            video_box.addWidget(self.coper.createSplitLine()) # 分割线
 
             self.grid_video.addLayout(video_box, *pos)
 
-        # 右边操作面板
+        """右边操作面板"""
         self.panel = QVBoxLayout()
 
+        # 标题
         self.title_label = QLabel("查找人物")
         self.title_label.resize(300, 30)
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setStyleSheet("color:rgb(10,10,10,255);font-size:25px;font-weight:bold;font-family:Roman times;")
 
+        # 初始图片
         self.people = QLabel(self)
-        # self.people.setText("测试员")
         self.people.setPixmap(QPixmap('./data/fyc/45_2/fyc-45_2-026.png'))
 
+        # 文本搜索
         self.input_edit = QLineEdit('45_2')
         self.formLayout = QFormLayout()
         self.formLayout.addRow('高亮视频', self.input_edit)
 
+        # 图片选择
         self.filePathEdit = QLineEdit()
         self.btnSelect = QPushButton("选择文件")
         self.btnSelect.setMaximumHeight(22)
@@ -134,8 +105,10 @@ class MainLayout(QMainWindow):
         self.file_hbox.addWidget(self.filePathEdit)
         self.file_hbox.addWidget(self.btnSelect)
 
+        # 查找按钮
         self.search_button = QPushButton('查找')
 
+        # 元素放置到操作面板
         self.panel.addWidget(self.title_label, 2)
         self.panel.addWidget(self.people, 4)
         self.panel.addLayout(self.formLayout, 1)
@@ -143,7 +116,7 @@ class MainLayout(QMainWindow):
         self.panel.addWidget(self.search_button, 1)
         self.panel.addWidget(QLabel(), 3)
 
-        # 应用布局
+        """应用布局"""
         hbox = QHBoxLayout()
         hbox.addLayout(self.grid_video, 3)
         hbox.addLayout(self.panel, 1)
@@ -159,14 +132,14 @@ class MainLayout(QMainWindow):
         self.search_button.clicked.connect(self.btnSearchPeopleOnClick)
         # 选择文件
         self.btnSelect.clicked.connect(self.btnSelectOnClick)
-        pass
 
+    # 创建定时器并开启
     def startTimer(self):
-        # 创建定时器并开启
         self.timer = QTimer()
         self.timer.timeout.connect(self.showNextImage)
         self.timer.start(35) # 开启定时器40毫秒循环
 
+    # 定时刷新视频
     def showNextImage(self):
         # 控制每个视频，播放下一张图片
         for pos in self.positions:
@@ -181,15 +154,17 @@ class MainLayout(QMainWindow):
         print('actFlashOnClick')
         # self.browser.load(QUrl.fromLocalFile(self.url))
 
+    # 查找视频
     def btnSearchPeopleOnClick(self):
         print('btnSearchPeopleOnClick')
         for pos, video in self.videos_data.items():
             if video.note == self.input_edit.text():
-                self.setLabelFrame(video.ctrl_label, True) # 视频label设置边框
+                self.coper.setLabelFrame(video.ctrl_label, True) # 视频label设置边框
             else:
                 # self.setLabelFrame(video.ctrl_label, False) # 视频label消除边框
                 pass
 
+    # 选择图片
     def btnSelectOnClick(self):
         select_filepath, ok = QFileDialog.getOpenFileName(self, "打开图片",
                                                         ".", # 默认当前路径
