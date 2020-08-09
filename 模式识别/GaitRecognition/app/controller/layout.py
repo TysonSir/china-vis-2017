@@ -127,12 +127,21 @@ class MainLayout(QMainWindow):
         self.formLayout = QFormLayout()
         self.formLayout.addRow('高亮视频', self.input_edit)
 
+        self.filePathEdit = QLineEdit()
+        self.btnSelect = QPushButton("选择文件")
+        self.btnSelect.setMaximumHeight(22)
+        self.file_hbox = QHBoxLayout()
+        self.file_hbox.addWidget(self.filePathEdit)
+        self.file_hbox.addWidget(self.btnSelect)
+
         self.search_button = QPushButton('查找')
 
-        self.panel.addWidget(self.title_label)
-        self.panel.addWidget(self.people)
-        self.panel.addLayout(self.formLayout)
-        self.panel.addWidget(self.search_button)
+        self.panel.addWidget(self.title_label, 2)
+        self.panel.addWidget(self.people, 4)
+        self.panel.addLayout(self.formLayout, 1)
+        self.panel.addLayout(self.file_hbox, 1)
+        self.panel.addWidget(self.search_button, 1)
+        self.panel.addWidget(QLabel(), 3)
 
         # 应用布局
         hbox = QHBoxLayout()
@@ -146,7 +155,10 @@ class MainLayout(QMainWindow):
     def connSlot(self):
         # 刷新页面
         # self.actFlash.triggered.connect(self.actFlashOnClick)
+        # 查找视频
         self.search_button.clicked.connect(self.btnSearchPeopleOnClick)
+        # 选择文件
+        self.btnSelect.clicked.connect(self.btnSelectOnClick)
         pass
 
     def startTimer(self):
@@ -177,3 +189,14 @@ class MainLayout(QMainWindow):
             else:
                 # self.setLabelFrame(video.ctrl_label, False) # 视频label消除边框
                 pass
+
+    def btnSelectOnClick(self):
+        select_filepath, ok = QFileDialog.getOpenFileName(self, "打开图片",
+                                                        ".", # 默认当前路径
+                                                        "png Files (*.png);;jpg Files (*.jpg);;All Files (*)")
+        if ok:
+            self.filePathEdit.setText(str(select_filepath))
+            self.people.setPixmap(QPixmap(str(select_filepath)))
+        else:
+            QMessageBox.warning(self, "警告", "选择的文件失败，请重试")
+            return False
