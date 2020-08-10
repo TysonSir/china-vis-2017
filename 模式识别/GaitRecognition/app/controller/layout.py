@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 import os, json
 
 from controller import ctrl_oper
+from controller import result_dialog
 from model import match_algo
 
 class VideoCtrl:
@@ -161,6 +162,8 @@ class MainLayout(QMainWindow):
             if self.startSearch and self.malgo.isImageSame(list_img[count], self.filePathEdit.text()):
                 self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
+                show_box = result_dialog.ResultDialog(list_img[count], self.filePathEdit.text())
+                show_box.exec_()
 
             # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count]))
