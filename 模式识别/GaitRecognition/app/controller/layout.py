@@ -1,5 +1,6 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import QPixmap
 import os, json
 
@@ -22,6 +23,7 @@ class MainLayout(QMainWindow):
         super(MainLayout, self).__init__()
         self.setWindowTitle("监控寻人系统 [v0.1]")
         self.resize(1300, 810)
+        self.timer = QTimer()
 
         self.initData()
         self.initUI()
@@ -135,11 +137,14 @@ class MainLayout(QMainWindow):
         self.search_button.clicked.connect(self.btnSearchPeopleOnClick)
         # 选择文件
         self.btnSelect.clicked.connect(self.btnSelectOnClick)
+        # 定时器事件处理
+        self.timer.timeout.connect(self.showNextImage)
 
     # 创建定时器并开启
     def startTimer(self):
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.showNextImage)
+        for pos in self.positions:
+            # 取消高亮边框
+            self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, False)
         self.timer.start(35) # 开启定时器40毫秒循环
 
     def stopTimer(self):

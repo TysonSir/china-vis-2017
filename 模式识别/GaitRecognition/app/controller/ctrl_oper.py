@@ -17,8 +17,8 @@ class CtrlOper:
             # 设置背景颜色，包括边框颜色
             target_label.setStyleSheet('background-color: rgb(255, 0, 0)')
         else:
-            # 设置线条宽度
-            target_label.setLineWidth(0)
+            # 取消高亮边框
+            target_label.setFrameShadow(QtWidgets.QFrame.Plain)
 
     # 创建分割线
     def createSplitLine(self):
