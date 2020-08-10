@@ -38,7 +38,16 @@ class ResultDialog(QDialog):
         compare_hbox.addLayout(self.getImgHBox(dstImgLabel, self.coper.getCenterHBox(dstNoteLabel)))
         compare_hbox.addLayout(self.getImgHBox(srcImgLabel, self.coper.getCenterHBox(srcNoteLabel)))
 
-        self.setLayout(compare_hbox)
+        vbox = QVBoxLayout()
+        # 相似度
+        ssim_label = QLabel("相似度：98%")
+        ssim_label.resize(300, 30)
+        ssim_label.setAlignment(Qt.AlignCenter)
+        ssim_label.setStyleSheet("color:rgb(10,10,10,255);font-size:18px;font-weight:bold;font-family:Roman times;")
+        vbox.addLayout(compare_hbox)
+        vbox.addWidget(ssim_label)
+
+        self.setLayout(vbox)
 
     def connSlot(self):
         # self.btnAdd.clicked.connect(self.btnAddOnClick)
