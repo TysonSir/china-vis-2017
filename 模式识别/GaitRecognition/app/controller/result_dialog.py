@@ -2,8 +2,10 @@ from PyQt5.QtWidgets import QVBoxLayout, QDialog, QLabel, QLineEdit, QTextEdit, 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
+import os, shutil
 
 from controller import ctrl_oper
+from model import gait_view
 
 class ResultDialog(QDialog):
     coper = ctrl_oper.CtrlOper()
@@ -12,9 +14,13 @@ class ResultDialog(QDialog):
         super(ResultDialog, self).__init__()
         self.setWindowTitle("对比")
         self.resize(750, 330)
+        op_img1_path = './runtime/img1_%s' % os.path.basename(img1)
+        shutil.copyfile(img1, op_img1_path)
+        op_img2_path = './runtime/img2_%s' % os.path.basename(img2)
+        shutil.copyfile(img2, op_img2_path)
 
-        self.img1_path = img1
-        self.img2_path = img2
+        self.img1_path = self.getOperImg(op_img1_path)
+        self.img2_path = self.getOperImg(op_img2_path)
         self.initUI()
         self.connSlot()
 
@@ -43,3 +49,8 @@ class ResultDialog(QDialog):
         img_box.addWidget(imgLabel)
         img_box.addLayout(note)
         return img_box
+
+    def getOperImg(self, img, pre=''):
+        out_path = './runtime/%s_%s' % (pre, os.path.basename(img))
+        gait_view.GR_DrawCalResult(img, out_path)
+        return out_path
