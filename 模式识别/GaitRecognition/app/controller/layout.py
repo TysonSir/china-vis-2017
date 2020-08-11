@@ -34,7 +34,7 @@ class MainLayout(QMainWindow):
     def initData(self):
         # 读取数据-视频文件夹
         self.videos_data = {} # { (0,1): VideoCtrl(), ... }
-        rootdir = './data/fyc'
+        rootdir = './data/001'
         list_video = os.listdir(rootdir)  # 列出文件夹下所有的目录与文件
         for i in range(len(list_video)):
             video_dir = os.path.join(rootdir, list_video[i])
@@ -146,7 +146,7 @@ class MainLayout(QMainWindow):
         for pos in self.positions:
             # 取消高亮边框
             self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, False)
-        self.timer.start(35) # 开启定时器40毫秒循环
+        self.timer.start(1) # 开启定时器40毫秒循环
 
     def stopTimer(self):
         self.timer.stop()
