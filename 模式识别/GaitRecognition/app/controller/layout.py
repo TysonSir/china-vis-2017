@@ -15,6 +15,7 @@ TIME_SPACE = 5
 class VideoCtrl:
     ctrl_label = None # 视频label控件
     note = ''
+    note_label = None
 
     now_count = 0 # 当前播放位置
     list_image = []
@@ -78,8 +79,8 @@ class MainLayout(QMainWindow):
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(first_img))
 
             # 获取水平居中标题布局
-            note_label = QLabel(self.videos_data[pos].note)
-            note_hbox = self.coper.getCenterHBox(note_label)
+            self.videos_data[pos].note_label = QLabel(self.videos_data[pos].note)
+            note_hbox = self.coper.getCenterHBox(self.videos_data[pos].note_label)
 
             # 视频控件展示到网格
             video_box = QVBoxLayout()
@@ -163,11 +164,14 @@ class MainLayout(QMainWindow):
             list_img = self.videos_data[pos].list_image
 
             # 调用匹配算法
-            if self.startSearch and self.malgo.isImageSame(list_img[count], self.filePathEdit.text()):
+            result = match_algo.CompareResult()
+            if self.startSearch and self.malgo.isImageSame(list_img[count], self.filePathEdit.text(), result):
                 self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
                 show_box = result_dialog.ResultDialog(list_img[count], self.filePathEdit.text())
                 show_box.exec_()
+            note = self.videos_data[pos].note
+            self.videos_data[pos].note_label.setText('%s [%d, %d]' % (note, result.area_diff, result.height_diff))
 
             # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count]))
