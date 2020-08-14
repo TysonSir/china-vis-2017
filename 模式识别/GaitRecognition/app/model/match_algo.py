@@ -3,6 +3,8 @@ import os
 from model import gait_view
 
 class MatchAlgo:
+    pixel_diff = 100
+    height_diff = 20
 
     def isImageSame(self, img1, img2):
         list_back1 = self.getLeftLine(img1)
@@ -13,7 +15,7 @@ class MatchAlgo:
         # 身高比较
         img1_h = self.getWidth(list_back1, 1) # 纵向宽度
         img2_h = self.getWidth(list_back2, 1) # 纵向宽度
-        if (img1_h - img2_h)**2 > 5**2: # 身高差大于5像素
+        if (img1_h - img2_h)**2 > self.height_diff**2: # 身高差大于height_diff像素
             return False
         same_val += 1
 
@@ -28,7 +30,7 @@ class MatchAlgo:
         distance = self.getMin(list_back2, 1)
         self.topMv(list_back2, distance)
 
-        if self.crossArea(list_back1, list_back2) > 30: # 像素差大于30
+        if self.crossArea(list_back1, list_back2) > self.pixel_diff: # 像素差大于pixel_diff
             return False
         same_val += 1
 

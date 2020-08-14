@@ -8,6 +8,10 @@ from controller import ctrl_oper
 from controller import result_dialog
 from model import match_algo
 
+DEFAULT_IMG = './data/target.png'
+TIME_SPACE = 5
+
+
 class VideoCtrl:
     ctrl_label = None # 视频label控件
     note = ''
@@ -34,7 +38,7 @@ class MainLayout(QMainWindow):
     def initData(self):
         # 读取数据-视频文件夹
         self.videos_data = {} # { (0,1): VideoCtrl(), ... }
-        rootdir = './data/001'
+        rootdir = './data/video'
         list_video = os.listdir(rootdir)  # 列出文件夹下所有的目录与文件
         for i in range(len(list_video)):
             video_dir = os.path.join(rootdir, list_video[i])
@@ -96,7 +100,7 @@ class MainLayout(QMainWindow):
 
         # 初始图片
         self.people = QLabel(self)
-        self.people.setPixmap(QPixmap('./data/fyc/45_2/fyc-45_2-026.png'))
+        self.people.setPixmap(QPixmap(DEFAULT_IMG))
 
         # 文本搜索
         self.input_edit = QLineEdit('45_2')
@@ -104,7 +108,7 @@ class MainLayout(QMainWindow):
         self.formLayout.addRow('高亮视频', self.input_edit)
 
         # 图片选择
-        self.filePathEdit = QLineEdit()
+        self.filePathEdit = QLineEdit(DEFAULT_IMG)
         self.btnSelect = QPushButton("选择文件")
         self.btnSelect.setMaximumHeight(22)
         self.file_hbox = QHBoxLayout()
@@ -167,8 +171,8 @@ class MainLayout(QMainWindow):
 
             # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count]))
-            self.videos_data[pos].now_count += 1
-            if self.videos_data[pos].now_count == len(list_img):
+            self.videos_data[pos].now_count += TIME_SPACE
+            if self.videos_data[pos].now_count >= len(list_img):
                 self.videos_data[pos].now_count = 0
 
     def actFlashOnClick(self):
