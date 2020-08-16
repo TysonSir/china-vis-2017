@@ -6,11 +6,16 @@ import os, json
 
 from controller import ctrl_oper
 from controller import result_dialog
+from model import gait_view
 from model import match_algo
 
 DEFAULT_IMG = './data/target.png'
 TIME_SPACE = 5
 
+class ImageInfo:
+    def __init__(self, img_path):
+        self.path = img_path
+        width = 0
 
 class VideoCtrl:
     ctrl_label = None # 视频label控件
@@ -34,7 +39,7 @@ class MainLayout(QMainWindow):
         self.initData()
         self.initUI()
         self.connSlot()
-        self.startTimer()
+        # self.startTimer()
 
     def initData(self):
         # 读取数据-视频文件夹
@@ -50,7 +55,7 @@ class MainLayout(QMainWindow):
             self.videos_data[key].list_image = [] # 设置为空列表，否则可能读取上一个循环的list_image
             for j in range(len(list_img)):
                 img_path = os.path.join(video_dir, list_img[j])
-                self.videos_data[key].list_image.append(img_path)
+                self.videos_data[key].list_image.append(ImageInfo(img_path))
 
     def initMenu(self):
         # 创建Action
@@ -74,7 +79,7 @@ class MainLayout(QMainWindow):
         self.positions = [(i, j) for i in range(3) for j in range(3)]
         for pos in self.positions:
             # 获取视频第一个图像
-            first_img = self.videos_data[pos].list_image[0]
+            first_img = self.videos_data[pos].list_image[0].path
             self.videos_data[pos].ctrl_label = QLabel() # 创建label对象
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(first_img))
 
@@ -117,6 +122,7 @@ class MainLayout(QMainWindow):
         self.file_hbox.addWidget(self.btnSelect)
 
         # 查找按钮
+        self.init_button = QPushButton('初始化')
         self.search_button = QPushButton('查找')
 
         # 元素放置到操作面板
@@ -124,6 +130,7 @@ class MainLayout(QMainWindow):
         self.panel.addWidget(self.people, 4)
         self.panel.addLayout(self.formLayout, 1)
         self.panel.addLayout(self.file_hbox, 1)
+        self.panel.addWidget(self.init_button, 1)
         self.panel.addWidget(self.search_button, 1)
         self.panel.addWidget(QLabel(), 3)
 
@@ -139,6 +146,8 @@ class MainLayout(QMainWindow):
     def connSlot(self):
         # 刷新页面
         # self.actFlash.triggered.connect(self.actFlashOnClick)
+        # 初始化视频
+        self.init_button.clicked.connect(self.btnInitOnClick)
         # 查找视频
         self.search_button.clicked.connect(self.btnSearchPeopleOnClick)
         # 选择文件
@@ -165,16 +174,16 @@ class MainLayout(QMainWindow):
 
             # 调用匹配算法
             result = match_algo.CompareResult()
-            if self.startSearch and self.malgo.isImageSame(list_img[count], self.filePathEdit.text(), result):
+            if self.startSearch and self.malgo.isImageSame(list_img[count].path, self.filePathEdit.text(), result):
                 self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
-                show_box = result_dialog.ResultDialog(list_img[count], self.filePathEdit.text())
+                show_box = result_dialog.ResultDialog(list_img[count].path, self.filePathEdit.text())
                 show_box.exec_()
             note = self.videos_data[pos].note
             self.videos_data[pos].note_label.setText('%s [%d, %d]' % (note, result.area_diff, result.height_diff))
 
             # 继续扫描
-            self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count]))
+            self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count].path))
             self.videos_data[pos].now_count += TIME_SPACE
             if self.videos_data[pos].now_count >= len(list_img):
                 self.videos_data[pos].now_count = 0
@@ -182,6 +191,22 @@ class MainLayout(QMainWindow):
     def actFlashOnClick(self):
         print('actFlashOnClick')
         # self.browser.load(QUrl.fromLocalFile(self.url))
+
+    # 初始化视频
+    def btnInitOnClick(self):
+        print('btnInitOnClick')
+
+        for pos in self.positions:
+            list_img = self.videos_data[pos].list_image
+            i = 0
+            end = len(list_img)
+            for img in list_img:
+                i += 1
+                print('[%d/%d] %s' % (i, end, self.videos_data[pos].note))
+                img.width = gait_view.GR_GetStepLength(img.path)
+
+        QMessageBox.information(self, "提示", "初始化成功！")
+
 
     # 查找视频
     def btnSearchPeopleOnClick(self):

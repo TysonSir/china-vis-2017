@@ -149,6 +149,17 @@ def GR_DrawCalResult(src_img_path, dst_img_path):
     # 保存到文件夹，不显示
     img.ImageShowSrc('', dst_img_path)
 
+def GR_GetStepLength(img_path):
+    # 读取原图
+    img = GaitImage(img_path)
+
+    # 二值化处理
+    img.Binarization()
+
+    # 获取步长
+    max_start, max_width, y = img.GetWidthMax()
+    return max_width
+
 def main():
     GR_DrawCalResult('./fn00/057.png', './057_out.png')
     return SystemWait()
