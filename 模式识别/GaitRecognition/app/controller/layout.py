@@ -175,7 +175,9 @@ class MainLayout(QMainWindow):
 
             # 调用匹配算法
             result = match_algo.CompareResult()
-            if self.startSearch and self.malgo.isImageSame(list_img[count].path, self.filePathEdit.text(), result):
+            if self.startSearch \
+            and self.videos_data[pos].now_count % self.timeSpace == 0 \
+            and self.malgo.isImageSame(list_img[count].path, self.filePathEdit.text(), result):
                 self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
                 show_box = result_dialog.ResultDialog(list_img[count].path, self.filePathEdit.text(), result)
@@ -185,7 +187,7 @@ class MainLayout(QMainWindow):
 
             # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count].path))
-            self.videos_data[pos].now_count += self.timeSpace
+            self.videos_data[pos].now_count += 1
             if self.videos_data[pos].now_count >= len(list_img):
                 self.videos_data[pos].now_count = 0
 
