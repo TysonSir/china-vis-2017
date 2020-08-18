@@ -10,7 +10,7 @@ from model import gait_view
 class ResultDialog(QDialog):
     coper = ctrl_oper.CtrlOper()
 
-    def __init__(self, img1, img2):
+    def __init__(self, img1, img2, result):
         super(ResultDialog, self).__init__()
         self.setWindowTitle("对比")
         self.resize(750, 330)
@@ -18,6 +18,8 @@ class ResultDialog(QDialog):
         shutil.copyfile(img1, op_img1_path)
         op_img2_path = './runtime/img2_%s' % os.path.basename(img2)
         shutil.copyfile(img2, op_img2_path)
+
+        self.result = result
 
         self.img1_path = self.getOperImg(op_img1_path)
         self.img2_path = self.getOperImg(op_img2_path)
@@ -40,7 +42,8 @@ class ResultDialog(QDialog):
 
         vbox = QVBoxLayout()
         # 相似度
-        ssim_label = QLabel("相似度：98%")
+        ssim_label = QLabel("相似度：%d%%, [身高差：%d, 体态积分：%d]" %
+                            (self.result.calPercent(), self.result.height_diff, self.result.area_diff))
         ssim_label.resize(300, 30)
         ssim_label.setAlignment(Qt.AlignCenter)
         ssim_label.setStyleSheet("color:rgb(10,10,10,255);font-size:18px;font-weight:bold;font-family:Roman times;")
@@ -63,3 +66,4 @@ class ResultDialog(QDialog):
         out_path = './runtime/%s_%s' % (pre, os.path.basename(img))
         gait_view.GR_DrawCalResult(img, out_path)
         return out_path
+

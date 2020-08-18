@@ -178,7 +178,7 @@ class MainLayout(QMainWindow):
             if self.startSearch and self.malgo.isImageSame(list_img[count].path, self.filePathEdit.text(), result):
                 self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
-                show_box = result_dialog.ResultDialog(list_img[count].path, self.filePathEdit.text())
+                show_box = result_dialog.ResultDialog(list_img[count].path, self.filePathEdit.text(), result)
                 show_box.exec_()
             note = self.videos_data[pos].note
             self.videos_data[pos].note_label.setText('%s [%d, %d]' % (note, result.area_diff, result.height_diff))

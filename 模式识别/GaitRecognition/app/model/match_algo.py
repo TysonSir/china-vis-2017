@@ -6,6 +6,9 @@ class CompareResult:
     area_diff = 0
     height_diff = 0
 
+    def calPercent(self):
+        return 100 - self.area_diff//10 - self.height_diff
+
 
 class MatchAlgo:
     area_diff = 220
