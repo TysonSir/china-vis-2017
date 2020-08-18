@@ -33,7 +33,7 @@ class MainLayout(QMainWindow):
 
     def __init__(self):
         super(MainLayout, self).__init__()
-        self.setWindowTitle("监控寻人系统 [v0.1]")
+        self.setWindowTitle("步态识别系统 [v1.0]")
         self.resize(1300, 810)
         self.timer = QTimer()
 
@@ -100,7 +100,7 @@ class MainLayout(QMainWindow):
         self.panel = QVBoxLayout()
 
         # 标题
-        self.title_label = QLabel("查找人物")
+        self.title_label = QLabel("识别人物")
         self.title_label.resize(300, 30)
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setStyleSheet("color:rgb(10,10,10,255);font-size:25px;font-weight:bold;font-family:Roman times;")
@@ -109,10 +109,11 @@ class MainLayout(QMainWindow):
         self.people = QLabel(self)
         self.people.setPixmap(QPixmap(DEFAULT_IMG))
 
-        # 文本搜索
-        self.input_edit = QLineEdit('45_2')
+        # 识别结果
+        self.input_edit = QLineEdit('未识别')
+        self.input_edit.setReadOnly(True)
         self.formLayout = QFormLayout()
-        self.formLayout.addRow('高亮视频', self.input_edit)
+        self.formLayout.addRow('识别结果', self.input_edit)
 
         # 图片选择
         self.filePathEdit = QLineEdit(DEFAULT_IMG)
@@ -124,14 +125,14 @@ class MainLayout(QMainWindow):
 
         # 查找按钮
         self.init_button = QPushButton('初始化')
-        self.search_button = QPushButton('查找')
+        self.search_button = QPushButton('开始识别')
 
         # 元素放置到操作面板
         self.panel.addWidget(self.title_label, 2)
         self.panel.addWidget(self.people, 4)
         self.panel.addLayout(self.formLayout, 1)
         self.panel.addLayout(self.file_hbox, 1)
-        self.panel.addWidget(self.init_button, 1)
+        # self.panel.addWidget(self.init_button, 1)
         self.panel.addWidget(self.search_button, 1)
         self.panel.addWidget(QLabel(), 3)
 
@@ -178,8 +179,9 @@ class MainLayout(QMainWindow):
             if self.startSearch \
             and self.videos_data[pos].now_count % self.timeSpace == 0 \
             and self.malgo.isImageSame(list_img[count].path, self.filePathEdit.text(), result):
-                self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
                 self.stopTimer()
+                self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, True) # 视频label设置边框
+                self.input_edit.setText(self.videos_data[pos].note)
                 show_box = result_dialog.ResultDialog(list_img[count].path, self.filePathEdit.text(), result)
                 show_box.exec_()
             note = self.videos_data[pos].note

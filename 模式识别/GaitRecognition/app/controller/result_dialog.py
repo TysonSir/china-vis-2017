@@ -29,11 +29,11 @@ class ResultDialog(QDialog):
     def initUI(self):
         # 布局信息
         dstImgLabel = QLabel()
-        dstNoteLabel = QLabel('视频')
+        dstNoteLabel = QLabel('视频中数据')
         dstImgLabel.setPixmap(QPixmap(self.img2_path))
 
         srcImgLabel = QLabel()
-        srcNoteLabel = QLabel('查找人物')
+        srcNoteLabel = QLabel('识别人物')
         srcImgLabel.setPixmap(QPixmap(self.img1_path))
 
         compare_hbox = QHBoxLayout()
