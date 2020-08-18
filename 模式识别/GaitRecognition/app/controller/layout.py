@@ -29,6 +29,7 @@ class MainLayout(QMainWindow):
     coper = ctrl_oper.CtrlOper()
     malgo = match_algo.MatchAlgo()
     startSearch = False
+    timeSpace = 1
 
     def __init__(self):
         super(MainLayout, self).__init__()
@@ -39,7 +40,7 @@ class MainLayout(QMainWindow):
         self.initData()
         self.initUI()
         self.connSlot()
-        # self.startTimer()
+        self.startTimer(30)
 
     def initData(self):
         # 读取数据-视频文件夹
@@ -156,11 +157,11 @@ class MainLayout(QMainWindow):
         self.timer.timeout.connect(self.showNextImage)
 
     # 创建定时器并开启
-    def startTimer(self):
+    def startTimer(self, lenTime):
         for pos in self.positions:
             # 取消高亮边框
             self.coper.setLabelFrame(self.videos_data[pos].ctrl_label, False)
-        self.timer.start(1) # 开启定时器40毫秒循环
+        self.timer.start(lenTime) # 开启定时器40毫秒循环
 
     def stopTimer(self):
         self.timer.stop()
@@ -184,7 +185,7 @@ class MainLayout(QMainWindow):
 
             # 继续扫描
             self.videos_data[pos].ctrl_label.setPixmap(QPixmap(list_img[count].path))
-            self.videos_data[pos].now_count += TIME_SPACE
+            self.videos_data[pos].now_count += self.timeSpace
             if self.videos_data[pos].now_count >= len(list_img):
                 self.videos_data[pos].now_count = 0
 
@@ -212,7 +213,8 @@ class MainLayout(QMainWindow):
     def btnSearchPeopleOnClick(self):
         print('btnSearchPeopleOnClick')
         self.startSearch = True
-        self.startTimer()
+        self.timeSpace = TIME_SPACE
+        self.startTimer(1)
 
     # 选择图片
     def btnSelectOnClick(self):
